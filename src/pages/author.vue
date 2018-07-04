@@ -28,12 +28,12 @@ export default {
         {
           name: "Tan Shuang",
           avatar: "/static/big/shuang.jpg",
-          id: "学号：15526xx"
+          id: "学号：1453564"
         },
         {
           name: "Chen Hui",
           avatar: "/static/big/hui.png",
-          id: "学号：15526xx"
+          id: "学号：1552698"
         }
       ]
     };

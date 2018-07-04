@@ -17,7 +17,7 @@
       </el-row>
     </div>
       <div>
-        <p>被点击日期：{{ name }}</p>
+        <p>待查看条目：{{ name }}</p>
         <ve-pie
           :data="chartData"
           :settings="chartSettings"
