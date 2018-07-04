@@ -3,26 +3,44 @@
     <div slot="header">
       <el-row :gutter="20">
         <el-col :span="6">
-          <el-button type="primary" circle style="margin-right: 10px">
+          <el-button type="primary" circle style="margin-right: 10px" @click="viewTheTotalLayer">
             <i class="material-icons">undo</i>
           </el-button>
           <span>返回上一层</span>
         </el-col>
         <el-col :span="6" :offset="12">
-          <el-button type="primary" circle style="margin-right: 10px">
+          <el-button type="primary" circle style="margin-right: 10px" @click="viewTheSubLayer">
             <i class="material-icons">redo</i>
           </el-button>
           <span>查看子层</span>
         </el-col>
       </el-row>
     </div>
-      <div>
-        <p>待查看条目：{{ name }}</p>
+      <div v-if="!isViewSubLayer">
+        <p>待查看条目：{{ subLayerName }}</p>
         <ve-pie
           :data="chartData"
           :settings="chartSettings"
           :events="chartEvents">
         </ve-pie>
+      </div>
+      <div v-if="isViewSubLayer">
+        <h3>{{subLayerName+": total " + subLayerData.length}}</h3>
+        <el-table
+          :data="subLayerData"
+          height="500"
+          border
+          style="width: 100%">
+          <el-table-column
+            prop="type"
+            label="type"
+            width="200px">
+          </el-table-column>
+          <el-table-column
+            prop="name"
+            label="name">
+          </el-table-column>
+        </el-table>
       </div>
   </el-card>
 </template>
@@ -37,8 +55,8 @@ export default {
     var self = this
     this.chartEvents = {
       click: function (e) {
-        self.name = e.name
-        console.log(e)
+        self.subLayerName = e.name;
+        self.selectSubLayer();
       }
     }
     return {
@@ -53,20 +71,44 @@ export default {
           { '日期': '1/6', '访问用户': 4593 }
         ]
       },
-      name: 'to be selectd',
+      subLayerName: 'to be selectd',
       loading: true,
-      rawData: {}
+      rawData: {},
+      totalChartData: [],
+      subLayerData: [],
+      isViewSubLayer: false
     }
   },
 
   methods: {
+    viewTheTotalLayer(){
+      this.isViewSubLayer = false;
+    },
+    viewTheSubLayer(){
+      if(this.subLayerData.length == 0)
+        return;
+      
+      this.isViewSubLayer = true;
+    },
+
+    selectSubLayer(){
+      var tempData = [];
+      this.rawData[this.subLayerName].forEach(element => {
+        tempData.push({
+          "type": this.subLayerName,
+          "name": element
+        });
+      });
+      this.subLayerData = tempData;
+      console.log(this.subLayerData);
+    },
+
     fetchData(){
       this.$http.get('http://localhost:3000/',{
             headers: { 'Content-Type': 'multipart/form-data' }
         }).then((response) => {
             // 成功回调
-            this.raw = response.body;
-            console.log(this.raw);
+            this.rawData = response.body;
             this.loading = false;
             this.processRawData();
         }, (response) => {
@@ -81,15 +123,16 @@ export default {
       var rows = [];
 
       var item
-      for(item in this.raw){
+      for(item in this.rawData){
         rows.push({
           '条目': item,
-          '该条目数目': this.raw[item].length
+          '该条目数目': this.rawData[item].length
         })
       }
 
-      console.log(rows);
       this.chartData.rows = rows;
+
+      this.totalChartData = this.chartData;
     },
 
     fetchDataError(str) {
