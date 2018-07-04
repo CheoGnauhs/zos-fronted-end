@@ -60,23 +60,45 @@ export default {
   },
 
   methods: {
-     fetchData(){
-      this.$http.post('http://localhost:8888/upload', formData, {
+    fetchData(){
+      this.$http.get('http://localhost:3000/',{
             headers: { 'Content-Type': 'multipart/form-data' }
         }).then((response) => {
             // 成功回调
             this.raw = response.body;
             console.log(this.raw);
             this.loading = false;
+            this.processRawData();
         }, (response) => {
             // 响应错误回调
-            this.fetchDataError("获取数据失败");
+            this.fetchDataError("获取数据失败，请重新刷新");
         });
 
     },
 
+    processRawData(){
+      this.chartData.columns = ['条目', '该条目数目'];
+      var rows = [];
+
+      var item
+      for(item in this.raw){
+        rows.push({
+          '条目': item,
+          '该条目数目': this.raw[item].length
+        })
+      }
+
+      console.log(rows);
+      this.chartData.rows = rows;
+    },
+
     fetchDataError(str) {
-        this.$message.error(str);
+      this.$confirm(str, '错误', {
+          type: 'error',
+          center: true,
+          showCancelButton: false,
+          showConfirmButton: false
+        })
     }
   },
 
