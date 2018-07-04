@@ -104,11 +104,11 @@ export default {
     },
 
     fetchData(){
-      this.$http.get('http://localhost:3000/',{
+      this.$http.get('http://localhost:3000/mastercatalog',{
             headers: { 'Content-Type': 'multipart/form-data' }
         }).then((response) => {
             // 成功回调
-            this.rawData = response.body;
+            this.rawData = response.body.data;
             this.loading = false;
             this.processRawData();
         }, (response) => {
